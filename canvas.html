@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #gameCanvas {
+        border: 1px solid #000;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+    <script>
+      // Canvas 요소와 그림 그리기 컨텍스트 가져오기
+      const canvas = document.getElementById("gameCanvas");
+      const context = canvas.getContext("2d");
+
+      // 스네이크 객체 생성
+      let snake = {
+        x: 10,
+        y: 10,
+        dx: 10,
+        dy: 0,
+        cells: [],
+        maxCells: 4,
+      };
+
+      // 음식 객체 생성
+      let food = {
+        x: 30,
+        y: 30,
+      };
+
+      let food2 = {
+        x: 30,
+        y: 30,
+      };
+
+      // 키보드 이벤트 리스너 등록
+      document.addEventListener("keydown", changeDirection);
+
+      // 키보드 입력에 따라 스네이크의 방향을 변경
+      function changeDirection(event) {
+        const LEFT_KEY = 37;
+        const RIGHT_KEY = 39;
+        const UP_KEY = 38;
+        const DOWN_KEY = 40;
+
+        const keyPressed = event.keyCode;
+
+        if (keyPressed === LEFT_KEY && snake.dx === 0) {
+          snake.dx = -10;
+          snake.dy = 0;
+        }
+
+        if (keyPressed === RIGHT_KEY && snake.dx === 0) {
+          snake.dx = 10;
+          snake.dy = 0;
+        }
+
+        if (keyPressed === UP_KEY && snake.dy === 0) {
+          snake.dy = -10;
+          snake.dx = 0;
+        }
+
+        if (keyPressed === DOWN_KEY && snake.dy === 0) {
+          snake.dy = 10;
+          snake.dx = 0;
+        }
+      }
+
+      // 게임 루프
+      function gameLoop() {
+        // 캔버스 지우기
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 스네이크 위치 업데이트
+        snake.x += snake.dx;
+        snake.y += snake.dy;
+
+        // 스네이크가 캔버스 영역을 벗어나면 게임 종료
+        if (
+          snake.x < 0 ||
+          snake.x >= canvas.width ||
+          snake.y < 0 ||
+          snake.y >= canvas.height
+        ) {
+          gameOver();
+          return;
+        }
+
+        // 스네이크의 몸체 업데이트
+        snake.cells.unshift({ x: snake.x, y: snake.y });
+
+        // 스네이크의 최대 길이 제한
+        if (snake.cells.length > snake.maxCells) {
+          snake.cells.pop();
+        }
+
+        // 스네이크 그리기
+        context.fillStyle = "green";
+        snake.cells.forEach(function (cell, index) {
+          context.fillRect(cell.x, cell.y, 10, 10);
+
+          // 스네이크가 자신의 몸에 닿으면 게임 종료
+          if (cell.x === snake.x && cell.y === snake.y && index > 0) {
+            gameOver();
+          }
+        });
+
+        // 음식 그리기
+        context.fillStyle = "red";
+        context.fillRect(food.x, food.y, 10, 10);
+        context.fillRect(food2.x, food2.y, 10, 10);
+
+        // 음식을 먹으면 스네이크의 길이를 증가
+        if (snake.x === food.x && snake.y === food.y) {
+          snake.maxCells++;
+          food.x = getRandomCoordinate();
+          food.y = getRandomCoordinate();
+        }
+
+        if (snake.x === food2.x && snake.y === food2.y) {
+          snake.maxCells++;
+          food2.x = getRandomCoordinate();
+          food2.y = getRandomCoordinate();
+        }
+
+       
+
+        // 다음 프레임으로 반복
+    
+        setTimeout(()=>{
+          requestAnimationFrame(gameLoop);
+        },100)
+
+      }
+
+      // 게임 시작
+      function startGame() {
+        snake.x = 10;
+        snake.y = 10;
+        snake.cells = [];
+        snake.maxCells = 4;
+        snake.dx = 10;
+        snake.dy = 0;
+        food.x = getRandomCoordinate();
+        food.y = getRandomCoordinate();
+        food2.x = getRandomCoordinate();
+        food2.y = getRandomCoordinate();
+        gameLoop();
+      }
+
+      // 게임 종료
+      function gameOver() {
+        alert("게임 오버!");
+        startGame();
+      }
+
+      // 랜덤 좌표 생성
+      function getRandomCoordinate() {
+        return Math.floor(Math.random() * (canvas.width / 10)) * 10;
+      }
+
+      // 게임 시작
+      startGame();
+    </script>
+  </body>
+</html>
